@@ -73,7 +73,6 @@ export default function(app, config) {
 
     return function*(next) {
         const matched = backendPattern.exec(this.url);
-        console.log(matched);
         if (matched) {
             const backendService = matched[2].toLowerCase();
             const backednAPIUrl = matched[4];

@@ -20,6 +20,13 @@ class Home extends Component {
       this.props.openEditor(Object.assign({}, this.props.version.list[index], {modalTitle: 'Edit Version'}));
     }
 
+    handleClickCopy(id, index) {
+      this.props.copyItem('version', {
+        id: id,
+        projectId: this.props.params.id
+      });
+    }
+
     handleClickDelete(id) {
       let self = this;
       confirm({
@@ -59,8 +66,9 @@ class Home extends Component {
     renderPopContent(id, index) {
       return (
         <div className="edit-pop">
-          <Icon type="edit" onClick={(ev) => { this.handleClickEdit(id, index, ev) }}/>
-          <Icon type="delete" onClick={(ev) => { this.handleClickDelete(id, ev) }} />
+          <Icon type="edit" onClick={(ev) => this.handleClickEdit(id, index, ev) }/>
+          <Icon type="copy" onClick={(ev) => this.handleClickCopy(id, index, ev) } />
+          <Icon type="delete" onClick={(ev) => this.handleClickDelete(id, ev) } />
         </div>
       );
     }

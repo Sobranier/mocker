@@ -2,6 +2,7 @@ import config from 'config';
 import uuid from 'node-uuid';
 import Controller from '../controller';
 import Version from '../db/models/version';
+import Api from '../db/models/api';
 import sequelize from '../db/index';
 import queryString from 'query-string';
 
@@ -48,20 +49,57 @@ export default class Main extends Controller {
         this.podata({data: action});
       } catch(ex) {
         console.log(ex);
-        this.podata({data: ex});
+        this.podata(ex);
       }
+    }
+
+    *copy(projectId, versionId) {
+      let version = yield Version.findOne({where: {id: versionId}});
+      let apis = yield Api.findAll({where: {version_id: versionId}});
+      let newObj = version.toJSON();
+
+      newObj.uid = uuid.v1();
+      newObj.name = newObj.name + '_bac';
+      delete(newObj.id);
+      delete(newObj.createdAt);
+      delete(newObj.updatedAt);
+
+      let newVersion;
+      try {
+         newVersion = yield Version.create(newObj);
+      } catch (ex) {
+        this.podata(ex);
+        return;
+      }
+      let newVersionId = newVersion.toJSON().id;
+
+      for (let i = 0, len = apis.length; i < len; i ++) {
+        let newObj = apis[i].toJSON();
+        newObj.uid = uuid.v1();
+        newObj.version_id = newVersionId;
+        delete(newObj.id);
+        delete(newObj.createdAt);
+        delete(newObj.updatedAt);
+
+        let newApi = yield Api.create(newObj);
+      }
+
+      this.podata({data: newVersion});
     }
 
     *delete(projectId, versionId) {
       try {
-        let action = yield Version.destroy({ where: {
+        let v = yield Version.destroy({ where: {
           id: versionId,
           project_id: projectId
         }});
-        this.podata({data: action});
+        let a = yield Api.destroy({where: {
+          version_id: versionId
+        }});
+        this.podata({data: {v, a}});
       } catch(ex) {
         console.log(ex);
-        this.podata({data: ex});
+        this.podata(ex);
       }
     }
 }

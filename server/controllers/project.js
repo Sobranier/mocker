@@ -45,7 +45,7 @@ export default class Main extends Controller {
         this.podata({data: action});
       } catch(ex) {
         console.log(ex);
-        this.podata({data: ex});
+        this.podata(ex);
       }
     }
 
@@ -57,7 +57,7 @@ export default class Main extends Controller {
         this.podata({data: action});
       } catch(ex) {
         console.log(ex);
-        this.podata({data: ex});
+        this.podata(ex);
       }
     }
 }

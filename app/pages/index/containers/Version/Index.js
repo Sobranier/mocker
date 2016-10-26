@@ -7,9 +7,10 @@ import { Icon, Popover, Breadcrumb, Modal, Input, Button } from 'antd';
 import * as listAction from 'main/actions/list';
 import * as modalAction from 'main/actions/modal';
 import * as infoAction from 'main/actions/info';
-
 import ApiEditor from 'app/components/common/ApiEditor';
+import ApiViewer from 'app/components/common/ApiViewer';
 import './Index.scss';
+
 const confirm = Modal.confirm;
 const InputGroup = Input.Group;
 
@@ -62,6 +63,17 @@ class Home extends Component {
     }));
   }
 
+  handlePreview(content) {
+    let { project, version } = this.props.activeInfo;
+    this.props.openEditor(Object.assign({}, this.props.activeInfo.api, content, {
+      url: `http://localhost:8787/mock?project=${project.name}&version=${version.name}&api=${encodeURIComponent(content.name)}`
+    }));
+  }
+
+  handleCancel(preview) {
+    this.props.closeEditor();
+  }
+
   componentDidMount() {
     this.props.fetchSingleInfo('project', { id: this.props.params.projectId });
     this.props.fetchSingleInfo('version', { projectId: this.props.params.projectId, id: this.props.params.id });
@@ -85,7 +97,7 @@ class Home extends Component {
           <ul>
           {api.list.map((item, index) => {
             return (
-              <li key={item.id}>
+              <li key={item.id} className={item.id === activeInfo.api.id ? 'active' : ''}>
                 <p onClick={() => {this.handleChoose(item.id)}}>{item.name}</p>
                 <Icon type="delete" onClick={() => {this.handleDelete(item.id)}}/>
               </li>
@@ -106,7 +118,13 @@ class Home extends Component {
           </Breadcrumb>
           <ApiEditor
             formData={activeInfo.api}
-            onUpdate={() => this.handleConfirm()}
+            onUpdate={(c) => this.handleConfirm(c)}
+            onPreview={(c) => this.handlePreview(c)}
+          />
+          <ApiViewer
+            info={modal.editInfo}
+            show={modal.show}
+            handleCancel={() => {this.handleCancel()}}
           />
         </div>
       </div>

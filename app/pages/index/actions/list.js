@@ -90,3 +90,24 @@ export function deleteItem(modelType, info) {
       });
   }
 }
+
+/**
+ *  拷贝单个条目
+ */
+export function copyItem(modelType, info) {
+  let url = createUrl(modelType, info, false);
+
+  return dispatch => {
+    request.post(url)
+      .promiseify()
+      .then((res) => {
+        if (res.body.errors) {
+          message.warning(res.body.message);
+          return;
+        }
+        fetchList(modelType, info)(dispatch);
+      }, (err) => {
+        console.log(err);
+      });
+  }
+}
